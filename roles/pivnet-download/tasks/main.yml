@@ -1,0 +1,5 @@
+---
+- name: download file from pivnet
+  shell: om --skip-ssl-validation download-product --pivnet-product-slug={{ slug }} --file-glob={{ glob }} --product-version={{ release_version }} --output-directory={{ download_dir }} --pivnet-api-token={{ pivnet_api_token }}
+  environment:
+    PATH: "{{ binary_install_location }}:{{ ansible_facts.env.PATH }}"

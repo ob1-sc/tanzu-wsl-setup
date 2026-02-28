@@ -1,0 +1,54 @@
+---
+- name: create temporary dir
+  tempfile:
+    state: directory
+    suffix: -cf-cli
+  register: temp_dir
+
+- debug:
+    msg: "created tmp file: {{ temp_dir.path }}"
+
+- name: download cf cli
+  include_role:
+    name: pivnet-download
+  vars:
+    slug: "{{ cf_cli.slug }}"
+    release_version: "{{ cf_cli.release_version }}"
+    glob: "{{ cf_cli.glob }}"
+    download_dir: "{{ temp_dir.path }}"
+
+- name: find the exact cf cli pivnet archive file name
+  find:
+    paths: "{{ temp_dir.path }}"
+    patterns: "{{ cf_cli.glob }}"
+  register: found_files_pivnet_archive
+
+- ansible.builtin.debug:
+    msg: "cf cli pivnet archive filename: {{ found_files_pivnet_archive.files[0].path }}"
+
+- name: unpack cf cli pivnet archive
+  unarchive:
+    src: "{{ found_files_pivnet_archive.files[0].path }}"
+    dest: "{{ temp_dir.path }}"
+    remote_src: yes
+    mode: 0755
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: find the exact cf cli binary archive file name
+  find:
+    paths: "{{ temp_dir.path }}"
+    patterns: "{{ cf_cli.binary_glob }}"
+  register: found_files_binary_archive
+
+- ansible.builtin.debug:
+    msg: "cf cli binary archive filename: {{ found_files_binary_archive.files[0].path }}"
+
+- name: unpack cf cli pivnet archive
+  unarchive:
+    src: "{{ found_files_binary_archive.files[0].path }}"
+    dest: "{{ binary_install_location }}"
+    remote_src: yes
+    mode: 0755
+    owner: "{{ user }}"
+    group: "{{ user }}"

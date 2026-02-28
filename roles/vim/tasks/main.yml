@@ -1,0 +1,53 @@
+---
+- name: install vim
+  apt:
+    pkg:
+      - vim
+      - ripgrep
+
+- name: install fzf cli
+  include_role:
+    name: github-release
+  vars:
+    repository: "{{ fzf_cli.repository }}"
+    release_asset_filter: "{{ fzf_cli.release_asset_filter }}"
+    archive_format: "{{ fzf_cli.archive_format }}"
+    binary_name: "{{ fzf_cli.binary_name }}"
+
+- name: Update .bashrc
+  ansible.builtin.lineinfile:
+    path: /home/{{ user }}/.bashrc
+    line: "export FZF_DEFAULT_OPTS='--multi --no-height --extended'"
+
+- name: Update .bashrc
+  ansible.builtin.lineinfile:
+    path: /home/{{ user }}/.bashrc
+    line: 'eval "$(fzf --bash)"'
+
+- name: creates vim directory
+  become_user: "{{ user }}"
+  file: 
+    path: /home/{{ user }}/.vim
+    state: directory
+
+- name: install vundle package manager
+  become_user: "{{ user }}"
+  git:
+    repo: https://github.com/VundleVim/Vundle.vim.git
+    dest: /home/{{ user }}/.vim/bundle/Vundle.vim
+  environment:
+    - "{{ proxy_env | default({}) }}"
+    - GIT_SSL_NO_VERIFY: "{{ skip_ssl_verify }}"
+  
+- name: setup vim
+  become_user: "{{ user }}"
+  copy:
+    src: files/.vimrc
+    dest: /home/{{ user }}/
+
+- name: install vim plugins
+  become_user: "{{ user }}"
+  command: "vim -c PluginInstall -c qa"
+  environment:
+    - "{{ proxy_env | default({}) }}"
+    - GIT_SSL_NO_VERIFY: "{{ skip_ssl_verify }}"

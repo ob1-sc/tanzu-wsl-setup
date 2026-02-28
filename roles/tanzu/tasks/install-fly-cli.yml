@@ -1,0 +1,21 @@
+---
+- name: check if concourse server is accessible
+  uri:
+    url: "https://{{ concourse_url }}/api/v1/info"
+    method: GET
+    validate_certs: "{{ not skip_ssl_verify }}"
+    timeout: 5
+  register: concourse_check
+  ignore_errors: yes
+
+- name: download fly cli from server
+  get_url:
+    url: "https://{{ concourse_url }}/api/v1/cli?arch=amd64&platform=linux"
+    dest: "{{ binary_install_location }}/{{ fly_cli.binary_name }}"
+    mode: '0755'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    validate_certs: "{{ not skip_ssl_verify }}"
+  when:
+    - concourse_check.status is defined
+    - concourse_check.status == 200

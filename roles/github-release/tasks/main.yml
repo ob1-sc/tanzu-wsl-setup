@@ -1,0 +1,86 @@
+---
+- name: Create default github release api url
+  set_fact:
+    api_url: https://api.github.com/repos/{{repository}}/releases/latest
+  when: release_tag is not defined
+
+- name: Create tagged github release api url
+  set_fact:
+    api_url: https://api.github.com/repos/{{repository}}/releases/tags/{{release_tag}}
+  when: release_tag is defined
+
+- name: get github release
+  uri:
+    url: "{{ api_url }}"
+    return_content: yes
+    body_format: json
+  register: release_info
+  environment:
+    - "{{ proxy_env | default({}) }}"
+    - GIT_SSL_NO_VERIFY: "{{ skip_ssl_verify }}"
+
+- name: Get release download URL
+  set_fact:
+    release_url: "{{ release_info.json | json_query(json_filter) | join('') }}"
+  vars:
+    json_filter: "assets[?(contains(name, '{{ release_asset_filter | default('linux') }}') && contains(name, '{{ archive_format | default('') }}'))].browser_download_url"
+
+- debug:
+    msg: "Downloading release from: {{release_url}}"
+
+- name: install github release
+  get_url:
+    url: "{{ release_url }}"
+    dest: "{{ binary_install_location }}/{{ binary_name }}"
+    mode: 0755
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    validate_certs: "{{ not skip_ssl_verify }}"
+  when: archive_format is not defined or archive_format | length == 0
+
+- name: install github release from archive
+  block:
+
+  - name: create temporary dir
+    tempfile:
+      state: directory
+      suffix: "-{{ binary_name }}-cli"
+    register: temp_dir
+
+  - debug:
+      msg: "created tmp dir: {{ temp_dir.path }}"
+
+  - name: extract github release
+    unarchive:
+      src: "{{ release_url }}"
+      dest: "{{ temp_dir.path }}"
+      mode: 0755
+      remote_src: yes
+      owner: "{{ user }}"
+      group: "{{ user }}"
+      validate_certs: "{{ not skip_ssl_verify }}"
+
+  - name: find the cli
+    find:
+      paths: "{{ temp_dir.path }}"
+      patterns: "{{ binary_name }}"
+    register: found_files_binary
+
+  - ansible.builtin.debug:
+      msg: "cli binary filename: {{ found_files_binary.files[0].path }}"
+
+  - name: install cli
+    copy:
+      src: "{{ found_files_binary.files[0].path }}"
+      dest: "{{ binary_install_location }}"
+      mode: '0755'
+      owner: "{{ user }}"
+      group: "{{ user }}"
+      remote_src: yes
+
+  - name: remove temporary directory
+    ansible.builtin.file:
+      path: "{{ temp_dir.path }}"
+      state: absent
+
+  when: archive_format is defined and archive_format | length > 0

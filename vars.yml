@@ -1,0 +1,98 @@
+---
+# linux user who's account will have tools installed into ~/.local/bin
+user: bob12345
+
+# location to install cli binaries
+binary_install_location: "/home/{{ user }}/.local/bin"
+
+# should ssl verification be skipped when connecting to services, this
+# is useful when connecting from a WSL that doesn't have all required
+# certificate authorities installed
+skip_ssl_verify: "true"
+
+# if internet connnectivity is behind a proxy then you can set the params
+# here, if not set then tasks will not use the proxy
+#proxy_env:
+#  http_proxy: "http://localhost:3128"
+#  https_proxy: "http://localhost:3128"
+#  no_proxy: "localhost,127.0.0.*"
+
+# api token for downloading files from tanzu network, if not set then any
+# tasks that require tanzu network connectivity will be skipped
+#pivnet_api_token: ""
+
+# the url of your concourse server, if not set or inaccesible then fly will
+# not be downloaded
+#concourse_url: ""
+
+################################################
+##### cli's installed from github releases #####
+################################################
+#
+# github release downloads support the following vars:
+# 1) repository           - this is the name of the repo used to talk to the github api (mandatory)
+# 2) release_tag          - this is used to identify which version of the cli to download, by default latest is selected (optional)
+# 3) release_asset_filter - this filter is used to identify which file to download as a release typically includes multiple files (mandatory)
+# 4) binary_name          - the name of the binary to install (mandatory)
+# 5) archive_format       - if the cli is downloaded from the release in an archive, set the archive format, if unset it is assumed the download is not an archive (optional)
+
+om_cli:
+  repository: pivotal-cf/om
+  release_asset_filter: linux-amd64
+  archive_format: tar.gz
+  binary_name: om
+
+bosh_cli:
+  repository: cloudfoundry/bosh-cli
+  release_asset_filter: linux-amd64
+  binary_name: bosh
+
+jq_cli:
+  repository: jqlang/jq
+  release_asset_filter: linux-amd64
+  binary_name: jq
+
+credhub_cli:
+  repository: cloudfoundry/credhub-cli
+  release_asset_filter: linux-amd64
+  archive_format: tgz
+  binary_name: credhub
+
+fzf_cli:
+  repository: junegunn/fzf
+  release_asset_filter: linux_amd64
+  archive_format: tar.gz
+  binary_name: fzf
+
+gitmux_cli:
+  repository: arl/gitmux
+  release_asset_filter: linux_amd64
+  archive_format: tar.gz
+  binary_name: gitmux
+
+################################################
+
+################################################
+##### cli's installed from pivotal network #####
+################################################
+
+cf_cli:
+  slug: cf
+  release_version: 10.2.8+LTS-T
+  glob: cf-cli*.zip
+  binary_name: cf
+  binary_glob: "*-cli-linux-amd64.tar.gz"
+
+################################################
+
+mc_cli:
+  release_asset_filter: linux-amd64
+  binary_name: mc
+
+fly_cli:
+  binary_name: fly
+
+vault_cli:
+  release_asset_filter: linux_amd64
+  binary_name: vault
+  version: 1.15.4 # version is required, will not default to latest

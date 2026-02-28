@@ -1,0 +1,35 @@
+- name: install tmux
+  apt:
+    pkg:
+      - tmux
+      - xdg-utils
+
+- name: setup tmux
+  become_user: "{{ user }}"
+  copy:
+    src: files/.tmux.conf
+    dest: /home/{{ user }}/
+
+- name: creates tpm directory
+  become_user: "{{ user }}"
+  file:
+    path: /home/{{ user }}/.tmux/plugins/tpm
+    state: directory
+
+- name: install tmux plugin manager
+  become_user: "{{ user }}"
+  git:
+    repo: https://github.com/tmux-plugins/tpm
+    dest: /home/{{ user }}/.tmux/plugins/tpm
+  environment:
+    - "{{ proxy_env | default({}) }}"
+    - GIT_SSL_NO_VERIFY: "{{ skip_ssl_verify }}"
+    
+- name: install gitmux cli
+  include_role:
+    name: github-release
+  vars:
+    repository: "{{ gitmux_cli.repository }}"
+    release_asset_filter: "{{ gitmux_cli.release_asset_filter }}"
+    archive_format: "{{ gitmux_cli.archive_format }}"
+    binary_name: "{{ gitmux_cli.binary_name }}"

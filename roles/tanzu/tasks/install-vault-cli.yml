@@ -1,0 +1,17 @@
+---
+- name: install vault cli
+  unarchive:
+    src: "https://releases.hashicorp.com/vault/{{ vault_cli.version }}/vault_{{ vault_cli.version }}_{{ vault_cli.release_asset_filter }}.zip"
+    dest: "{{ binary_install_location }}"
+    mode: 0755
+    remote_src: yes
+    exclude: "LICENCE"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    validate_certs: "{{ not skip_ssl_verify }}"
+
+- name: enable vault autocomplete for bash
+  lineinfile:
+    path: /home/{{ user }}/.bashrc
+    line: "complete -C {{ binary_install_location }}/vault vault"
+    create: yes

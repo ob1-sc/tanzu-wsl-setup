@@ -1,0 +1,50 @@
+---
+- name: install om cli
+  include_role:
+    name: github-release
+  vars:
+    repository: "{{ om_cli.repository }}"
+    release_asset_filter: "{{ om_cli.release_asset_filter }}"
+    archive_format: "{{ om_cli.archive_format }}"
+    binary_name: "{{ om_cli.binary_name }}"
+
+- name: install bosh cli
+  include_tasks: install-bosh-cli.yml
+
+- name: install jq cli
+  include_role:
+    name: github-release
+  vars:
+    repository: "{{ jq_cli.repository }}"
+    release_asset_filter: "{{ jq_cli.release_asset_filter }}"
+    archive_format: "{{ jq_cli.archive_format }}"
+    binary_name: "{{ jq_cli.binary_name }}"
+
+- name: install cf cli
+  include_tasks: install-cf-cli.yml
+  when: pivnet_api_token is defined and pivnet_api_token | length > 0
+
+- name: install credhub cli
+  include_role:
+    name: github-release
+  vars:
+    repository: "{{ credhub_cli.repository }}"
+    release_asset_filter: "{{ credhub_cli.release_asset_filter }}"
+    archive_format: "{{ credhub_cli.archive_format }}"
+    binary_name: "{{ credhub_cli.binary_name }}"
+
+- name: install MinIO s3 cli
+  get_url:
+    url: "https://dl.min.io/client/mc/release/{{ mc_cli.release_asset_filter }}/mc"
+    dest: "{{ binary_install_location }}/{{ mc_cli.binary_name }}"
+    mode: '0755'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    validate_certs: "{{ not skip_ssl_verify }}"
+
+- name: install fly cli
+  include_tasks: install-fly-cli.yml
+  when: concourse_url is defined and concourse_url | length > 0
+
+- name: install vault cli
+  include_tasks: install-vault-cli.yml
