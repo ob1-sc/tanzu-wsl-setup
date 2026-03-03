@@ -37,6 +37,8 @@
     group: "{{ user }}"
     validate_certs: "{{ not skip_ssl_verify }}"
   when: archive_format is not defined or archive_format | length == 0
+  environment:
+    - "{{ proxy_env | default({}) }}"
 
 - name: install github release from archive
   block:
@@ -59,6 +61,8 @@
       owner: "{{ user }}"
       group: "{{ user }}"
       validate_certs: "{{ not skip_ssl_verify }}"
+  environment:
+    - "{{ proxy_env | default({}) }}"
 
   - name: find the cli
     find:
