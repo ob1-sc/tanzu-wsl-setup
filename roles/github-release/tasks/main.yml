@@ -61,8 +61,8 @@
       owner: "{{ user }}"
       group: "{{ user }}"
       validate_certs: "{{ not skip_ssl_verify }}"
-  environment:
-    - "{{ proxy_env | default({}) }}"
+    environment:
+      - "{{ proxy_env | default({}) }}"
 
   - name: find the cli
     find:
