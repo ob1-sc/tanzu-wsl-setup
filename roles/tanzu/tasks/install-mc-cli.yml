@@ -1,0 +1,17 @@
+---
+- name: install minio s3 cli
+  get_url:
+    url: "https://dl.min.io/client/mc/release/{{ mc_cli.release_asset_filter }}/mc"
+    dest: "{{ binary_install_location }}/{{ mc_cli.binary_name }}"
+    mode: '0755'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    validate_certs: "{{ not skip_ssl_verify }}"
+  environment:
+    - "{{ proxy_env | default({}) }}"
+
+- name: enable minio autocomplete for bash
+  lineinfile:
+    path: /home/{{ user }}/.bashrc
+    line: "complete -C {{ binary_install_location }}/{{ mc_cli.binary_name }} {{ mc_cli.binary_name }}"
+    create: yes

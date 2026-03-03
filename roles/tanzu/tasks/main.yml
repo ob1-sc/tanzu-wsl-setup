@@ -33,16 +33,8 @@
     archive_format: "{{ credhub_cli.archive_format }}"
     binary_name: "{{ credhub_cli.binary_name }}"
 
-- name: install MinIO s3 cli
-  get_url:
-    url: "https://dl.min.io/client/mc/release/{{ mc_cli.release_asset_filter }}/mc"
-    dest: "{{ binary_install_location }}/{{ mc_cli.binary_name }}"
-    mode: '0755'
-    owner: "{{ user }}"
-    group: "{{ user }}"
-    validate_certs: "{{ not skip_ssl_verify }}"
-  environment:
-    - "{{ proxy_env | default({}) }}"
+- name: install minio s3 cli
+  include_tasks: install-mc-cli.yml
 
 - name: install fly cli
   include_tasks: install-fly-cli.yml
