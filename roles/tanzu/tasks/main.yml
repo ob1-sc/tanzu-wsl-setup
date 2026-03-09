@@ -6,6 +6,7 @@
     repository: "{{ om_cli.repository }}"
     release_asset_filter: "{{ om_cli.release_asset_filter }}"
     archive_format: "{{ om_cli.archive_format }}"
+    archive_binary_search: "{{ om_cli.archive_binary_search }}"
     binary_name: "{{ om_cli.binary_name }}"
 
 - name: install bosh cli
@@ -18,7 +19,18 @@
     repository: "{{ jq_cli.repository }}"
     release_asset_filter: "{{ jq_cli.release_asset_filter }}"
     archive_format: "{{ jq_cli.archive_format }}"
+    archive_binary_search: "{{ jq_cli.archive_binary_search }}"
     binary_name: "{{ jq_cli.binary_name }}"
+
+- name: install yq cli
+  include_role:
+    name: github-release
+  vars:
+    repository: "{{ yq_cli.repository }}"
+    release_asset_filter: "{{ yq_cli.release_asset_filter }}"
+    archive_format: "{{ yq_cli.archive_format }}"
+    archive_binary_search: "{{ yq_cli.archive_binary_search }}"
+    binary_name: "{{ yq_cli.binary_name }}"
 
 - name: install cf cli
   include_tasks: install-cf-cli.yml
@@ -31,6 +43,7 @@
     repository: "{{ credhub_cli.repository }}"
     release_asset_filter: "{{ credhub_cli.release_asset_filter }}"
     archive_format: "{{ credhub_cli.archive_format }}"
+    archive_binary_search: "{{ credhub_cli.archive_binary_search }}"
     binary_name: "{{ credhub_cli.binary_name }}"
 
 - name: install minio s3 cli

@@ -67,7 +67,7 @@
   - name: find the cli
     find:
       paths: "{{ temp_dir.path }}"
-      patterns: "{{ binary_name }}"
+      patterns: "{{ archive_binary_search | default(binary_name) }}"
     register: found_files_binary
 
   - ansible.builtin.debug:
@@ -76,7 +76,7 @@
   - name: install cli
     copy:
       src: "{{ found_files_binary.files[0].path }}"
-      dest: "{{ binary_install_location }}"
+      dest: "{{ binary_install_location }}/{{ binary_name }}"
       mode: '0755'
       owner: "{{ user }}"
       group: "{{ user }}"
