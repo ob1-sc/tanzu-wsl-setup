@@ -52,6 +52,13 @@ jq_cli:
   release_asset_filter: linux-amd64
   binary_name: jq
 
+yq_cli:
+  repository: mikefarah/yq
+  release_asset_filter: linux_amd64
+  archive_format: tar.gz
+  archive_binary_search: yq_linux_amd64
+  binary_name: yq
+
 credhub_cli:
   repository: cloudfoundry/credhub-cli
   release_asset_filter: linux-amd64
